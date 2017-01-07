@@ -178,12 +178,26 @@ public class MultiStatistics {
 		sb.append("\nHighest score:      " + highScore);
 		sb.append("\nHighest tile:       " + highTile);
 		sb.append("\nTile counts:        |");
+		sb.append("\nGrade: " + calculateGrade());
 		for(int t : highTiles) {
 			sb.append(t + "|");
 		}
 		return sb.toString();
 	}
 	
+	private String calculateGrade() {
+		double grade = 0;
+		if (mean < 2000) {
+			return String.valueOf(grade);
+		}
+		else if (mean < 22000) {
+			grade = (mean-2000)/286;
+			return String.valueOf(grade);
+		}
+		grade = ((mean-22000)/1200)+70;
+		return String.valueOf(grade);
+	}
+
 	public static void main (String[] args) {
 		for(Player p : Controller.getAvailableInstances(Player.class)) {
 //		for(Player p : new Player[]{new BaselinePlayer()}) {

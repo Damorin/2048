@@ -109,10 +109,25 @@ public class Statistics {
 		sb.append("\nHighest score:      " + highScore);
 		sb.append("\nHighest tile:       " + highTile);
 		sb.append("\nTile counts:        |");
+		sb.append(
+				"Calculating potential grade - Disclaimer: This is not the final grade and may be effected by machine performance");
+		sb.append("\nGrade:              " + calculatePossibleGrade());
 		for (int t : highTiles) {
 			sb.append(t + "|");
 		}
 		return sb.toString();
+	}
+
+	private String calculatePossibleGrade() {
+		double grade = 0;
+		if (mean < 2000) {
+			return String.valueOf(grade);
+		} else if (mean < 22000) {
+			grade = (mean - 2000) / 286;
+			return String.valueOf(grade);
+		}
+		grade = ((mean - 22000) / 1200) + 70;
+		return String.valueOf(grade);
 	}
 
 	public static void main(String[] args) {
