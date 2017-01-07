@@ -138,4 +138,12 @@ public interface State {
 	 * @return A new State identical to this one
 	 */
 	State copy();
+	
+	int getNumberOfEmptyCells();
+
+	int[][] getBoardArray();
+
+	void setVal(int x, int y, int i);
+
+	void updateTime(int time);
 }

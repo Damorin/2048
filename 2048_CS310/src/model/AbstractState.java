@@ -14,6 +14,9 @@ public abstract class AbstractState implements State {
 	protected Random rng = new Random();
 	protected Point newTilePosition = new Point(-1,-1);
 	
+	protected int moves = 0;
+	protected int time = 0;
+	
 	public static enum MOVE {
 		LEFT,UP, RIGHT, DOWN;
 	}
@@ -26,6 +29,8 @@ public abstract class AbstractState implements State {
 	@Override
 	public void reset() {
 		score = 0;
+		moves = 0;
+		time = 0;
 		undoStack.clear();
 		redoStack.clear();
 	}
@@ -116,5 +121,17 @@ public abstract class AbstractState implements State {
 	@Override
 	public Point getNewTilePosition() {
 		return newTilePosition;
+	}
+	
+	@Override
+	public void updateTime(int time) {
+		moves++;
+		this.time += time;
+	}
+	
+	public int getAvgTime() {
+		if(moves==0)
+			return time;
+		return time/moves;
 	}
 }

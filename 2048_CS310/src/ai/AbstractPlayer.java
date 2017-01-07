@@ -39,9 +39,9 @@ public abstract class AbstractPlayer implements Player, ComboObserver {
 	}
 	
 	protected void pause() {
-		try {
-			Thread.sleep(delay);
-		} catch (InterruptedException e) {}
+//		try {
+//			Thread.sleep(delay);
+//		} catch (InterruptedException e) {}
 	}
 	
 	@Override

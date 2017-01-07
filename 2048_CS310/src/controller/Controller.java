@@ -56,7 +56,7 @@ public class Controller {
 				} else if (code >= 0 && code < 4) {
 					board.move(MOVE.values()[code]);
 					board.getMoves();
-					board.toLong();
+					board.fromLong(board.toLong());
 				}
 				panel.repaint();
 				frame.setTitle("Score: " + board.getScore());
@@ -133,8 +133,10 @@ public class Controller {
 				}
 				long start = System.currentTimeMillis();
 				MOVE move = cPanel.player.getMove(new BinaryState(board.toLong(), board.getScore()));
-				cPanel.updateTime((int) (System.currentTimeMillis()-start));
+				int time = (int) (System.currentTimeMillis()-start);
+				cPanel.updateTime(time);
 				board.move(move);
+				board.updateTime(time);
 				moves = board.getMoves();
 				panel.repaint();
 				frame.setTitle("Score: " + board.getScore());

@@ -9,10 +9,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import ai.BaselinePlayer;
+import ai.Player;
 import model.AbstractState.MOVE;
 import model.BinaryState;
-import ai.GreedyPlayerEval;
-import ai.Player;
 
 public class Statistics {
 	private final int nGames;
@@ -25,30 +25,31 @@ public class Statistics {
 	private final BinaryState game = new BinaryState();
 	private double mean;
 	private double standardDeviation;
-	
-	public Statistics (int nGames, Player player) {
+
+	public Statistics(int nGames, Player player) {
 		this.nGames = nGames;
 		results = new int[nGames];
 		this.player = player;
 	}
-	
+
 	public void reset() {
 		highScore = 0;
 		highTile = 0;
 		standardDeviation = 0;
 		mean = 0;
-		for(int t = 0 ; t < 15 ; t++) {
+		for (int t = 0; t < 15; t++) {
 			highTiles[t] = 0;
 		}
 		game.reset();
 	}
+
 	public class GamePlayer implements Callable<Point> {
 
 		@Override
 		public Point call() throws Exception {
 			BinaryState game = new BinaryState();
 			List<MOVE> moves = game.getMoves();
-			while(!moves.isEmpty()) {
+			while (!moves.isEmpty()) {
 				MOVE move = player.getMove(game);
 				game.move(move);
 				moves = game.getMoves();
@@ -56,19 +57,18 @@ public class Statistics {
 			return new Point(game.getScore(), game.getHighestTileValue());
 		}
 
-		
 	}
-	
+
 	public void begin() {
 		long start = System.currentTimeMillis();
-		ExecutorService executor = Executors.newFixedThreadPool(16);
+		ExecutorService executor = Executors.newFixedThreadPool(1);
 		List<Future<Point>> list = new ArrayList<Future<Point>>();
 		for (int i = 0; i < nGames; i++) {
 			Callable<Point> worker = new GamePlayer();
 			Future<Point> submit = executor.submit(worker);
 			list.add(submit);
 		}
-	    int i = 0;
+		int i = 0;
 		for (Future<Point> future : list) {
 			try {
 				Point result = future.get();
@@ -77,15 +77,15 @@ public class Statistics {
 				highScore = Math.max(highScore, results[i]);
 				int ht = result.y;
 				highTile = Math.max(highTile, ht);
-				highTiles[Integer.numberOfTrailingZeros(ht)-1]++;
-				System.out.println(i++);
+				highTiles[Integer.numberOfTrailingZeros(ht) - 1]++;
+				System.out.println((i++) + " " + result);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		standardDeviation = calculateStandardDeviation();
 		System.out.println(System.currentTimeMillis() - start);
 	}
@@ -93,40 +93,40 @@ public class Statistics {
 	private double calculateStandardDeviation() {
 		mean = totalScore / nGames;
 		double sumSqDiff = 0.0;
-		for(int i = 0 ; i < nGames ; i++) {
+		for (int i = 0; i < nGames; i++) {
 			double diff = results[i] - mean;
 			sumSqDiff += diff * diff;
 		}
 		return Math.sqrt(sumSqDiff / nGames);
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(  "100");
-		sb.append(  "\nMean:               " + mean);
+		sb.append("100");
+		sb.append("\nMean:               " + mean);
 		sb.append("\nStandard deviation: " + standardDeviation);
 		sb.append("\nHighest score:      " + highScore);
 		sb.append("\nHighest tile:       " + highTile);
 		sb.append("\nTile counts:        |");
-		for(int t : highTiles) {
+		for (int t : highTiles) {
 			sb.append(t + "|");
 		}
 		return sb.toString();
 	}
-	
-	public static void main (String[] args) {
-		Statistics s = new Statistics(100000, new GreedyPlayerEval());
+
+	public static void main(String[] args) {
+		Statistics s = new Statistics(100, new BaselinePlayer());
 		s.begin();
 		System.out.println(s);
-//		FileWriter results = null;
-//		try {
-//			results = new FileWriter(new File("1000000_nt.txt"), false);
-//			results.write(s.toString());
-//			results.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// FileWriter results = null;
+		// try {
+		// results = new FileWriter(new File("1000000_nt.txt"), false);
+		// results.write(s.toString());
+		// results.close();
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 	}
 }

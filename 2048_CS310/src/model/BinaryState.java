@@ -313,7 +313,7 @@ public class BinaryState extends AbstractState {
 		board[y] |= (char)(log2(i) << (x*4));
 	}
 	
-	private void setVal(int x, int y, int val) {
+	public void setVal(int x, int y, int val) {
 		board[y] &= AND_MASK[x];
 		board[y] |= (char)(val << (x*4));
 	}
@@ -437,9 +437,35 @@ public class BinaryState extends AbstractState {
 		}
 		return results;
 	}
+	
+	@Override
+	public int getNumberOfEmptyCells() {
+		int count = 0;
+		for(int y = 0 ; y < 4 ; y++) {
+			for(int x = 0 ; x < 4 ; x++) {
+				if(getVal(x, y) == 0) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+
+	@Override
+	public int[][] getBoardArray() {
+		int[][] BoardArray = new int[4][4];
+		for(int y = 0 ; y < 4 ; y++) {
+			for(int x = 0 ; x < 4 ; x++) {
+				BoardArray[x][y] = getVal(x, y);				
+			}
+		}
+		return BoardArray;
+	}
 
 	@Override
 	public State copy() {
 		return new BinaryState(toLong(), score);
 	}
+
+
 }
