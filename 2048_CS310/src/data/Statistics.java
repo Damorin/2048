@@ -120,13 +120,15 @@ public class Statistics {
 
 	private String calculatePossibleGrade() {
 		double grade = 0;
-		if (mean < 2000) {
+		int minScore = 2000;
+		int averageScore = 32000;
+		if (mean < minScore) {
 			return String.valueOf(grade);
-		} else if (mean < 22000) {
-			grade = (mean - 2000) / 286;
+		} else if (mean < averageScore) {
+			grade = 40 + ((mean - minScore)/averageScore) * 30;
 			return String.valueOf(grade);
 		}
-		grade = ((mean - 22000) / 1200) + 70;
+		grade = 70 + ((mean - averageScore) / mean) *30;
 		return String.valueOf(grade);
 	}
 
