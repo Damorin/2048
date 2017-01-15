@@ -9,8 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ai.BaselinePlayer;
 import ai.Player;
+import ai.RandomAI;
 import model.AbstractState.MOVE;
 import model.BinaryState;
 
@@ -49,10 +49,13 @@ public class Statistics {
 		public Point call() throws Exception {
 			BinaryState game = new BinaryState();
 			List<MOVE> moves = game.getMoves();
+
 			while (!moves.isEmpty()) {
 				MOVE move = player.getMove(game);
 				game.move(move);
+
 				moves = game.getMoves();
+
 			}
 			return new Point(game.getScore(), game.getHighestTileValue());
 		}
@@ -109,12 +112,15 @@ public class Statistics {
 		sb.append("\nHighest score:      " + highScore);
 		sb.append("\nHighest tile:       " + highTile);
 		sb.append("\nTile counts:        |");
-		sb.append(
-				"Calculating potential grade - Disclaimer: This is not the final grade and may be effected by machine performance");
-		sb.append("\nGrade:              " + calculatePossibleGrade());
+
 		for (int t : highTiles) {
 			sb.append(t + "|");
 		}
+
+		sb.append(
+				"\nCalculating potential grade - \nDISCLAIMER: This is not the final grade and may be effected by machine performance");
+		sb.append("\nGrade:              " + calculatePossibleGrade());
+
 		return sb.toString();
 	}
 
@@ -125,15 +131,15 @@ public class Statistics {
 		if (mean < minScore) {
 			return String.valueOf(grade);
 		} else if (mean < averageScore) {
-			grade = 40 + ((mean - minScore)/averageScore) * 30;
+			grade = 40 + ((mean - minScore) / averageScore) * 30;
 			return String.valueOf(grade);
 		}
-		grade = 70 + ((mean - averageScore) / mean) *30;
+		grade = 70 + ((mean - averageScore) / mean) * 30;
 		return String.valueOf(grade);
 	}
 
 	public static void main(String[] args) {
-		Statistics s = new Statistics(100, new BaselinePlayer());
+		Statistics s = new Statistics(100, new RandomAI());
 		s.begin();
 		System.out.println(s);
 		// FileWriter results = null;

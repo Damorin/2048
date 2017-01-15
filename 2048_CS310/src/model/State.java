@@ -139,6 +139,12 @@ public interface State {
 	 */
 	State copy();
 	
+	/**
+	 * Used as a time trial version of 2048 to force a random tile to be placed without taking a move.
+	 * This is used in the cases where the user takes too long to make a move.
+	 */
+	void timeTrialMove();
+	
 	int getNumberOfEmptyCells();
 
 	int[][] getBoardArray();

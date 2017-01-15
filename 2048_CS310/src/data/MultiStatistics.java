@@ -27,54 +27,56 @@ public class MultiStatistics {
 	private int highTile = 0;
 	private final int[] results;
 	private final int[] highTiles = new int[15];
-	private final int[] tileValues = new int[]{0,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536};
+	private final int[] tileValues = new int[] { 0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384,
+			32768, 65536 };
 	private final Player player;
 	private final BinaryState game = new BinaryState();
 	private double mean;
 	private double standardDeviation;
 	private final FancyPanel panel;
 	private final JFrame frame;
-	
-	public MultiStatistics (int nGames, Player player) {
+
+	public MultiStatistics(int nGames, Player player) {
 		this.nGames = nGames;
 		results = new int[nGames];
 		this.player = player;
-		
+
 		panel = new FancyPanel(game);
 		panel.setPreferredSize(new Dimension(600, 600));
 
 		frame = new JFrame("Score: 0");
-		
+
 		frame.getContentPane().add(panel);
 		frame.setVisible(true);
 		frame.setResizable(false);
 		frame.pack();
 	}
-	
+
 	public void reset() {
 		highScore = 0;
 		highTile = 0;
 		standardDeviation = 0;
 		mean = 0;
-		for(int t = 0 ; t < 15 ; t++) {
+		for (int t = 0; t < 15; t++) {
 			highTiles[t] = 0;
 		}
 		game.reset();
 	}
+
 	public class GamePlayer implements Callable<Triple2048> {
 
 		@Override
 		public Triple2048 call() throws Exception {
-			
+
 			game.reset();
-			
+
 			List<MOVE> moves = game.getMoves();
 			int badCount = 0;
-			while(!moves.isEmpty()) {
+			while (!moves.isEmpty()) {
 				long t1 = System.currentTimeMillis();
 				MOVE move = player.getMove(game.copy());
-				
-				if(moves.contains(move)) {
+
+				if (moves.contains(move)) {
 					game.updateTime((int) (System.currentTimeMillis() - t1));
 					game.move(move);
 					moves = game.getMoves();
@@ -83,8 +85,8 @@ public class MultiStatistics {
 					panel.repaint();
 				} else {
 					badCount++;
-//					System.err.println(badCount);
-					if(badCount == 10) {
+					// System.err.println(badCount);
+					if (badCount == 10) {
 						return new Triple2048(game.getScore(), game.getHighestTileValue(), game.getAvgTime());
 					}
 				}
@@ -92,9 +94,8 @@ public class MultiStatistics {
 			return new Triple2048(game.getScore(), game.getHighestTileValue(), game.getAvgTime());
 		}
 
-		
 	}
-	
+
 	public void begin() {
 		long start = System.currentTimeMillis();
 		ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -104,19 +105,19 @@ public class MultiStatistics {
 			Future<Triple2048> submit = executor.submit(worker);
 			list.add(submit);
 		}
-	    int i = 0;
-	    FileWriter scores = null, tiles = null, times = null;
-	    try {
-	    	
-	    	scores = new FileWriter(new File("res/scores.csv"), true);
+		int i = 0;
+		FileWriter scores = null, tiles = null, times = null;
+		try {
+
+			scores = new FileWriter(new File("res/scores.csv"), true);
 			scores.append(player.studentName() + "," + player.studentID() + ",");
-			
+
 			tiles = new FileWriter(new File("res/tiles.csv"), true);
 			tiles.append(player.studentName() + "," + player.studentID() + ",");
-			
+
 			times = new FileWriter(new File("res/times.csv"), true);
 			times.append(player.studentName() + "," + player.studentID() + ",");
-			
+
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -132,7 +133,7 @@ public class MultiStatistics {
 				highScore = Math.max(highScore, results[i]);
 				int ht = result.tile;
 				highTile = Math.max(highTile, ht);
-				highTiles[Integer.numberOfTrailingZeros(ht)-1]++;
+				highTiles[Integer.numberOfTrailingZeros(ht) - 1]++;
 				System.out.println((i++) + " " + result);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -154,7 +155,7 @@ public class MultiStatistics {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		standardDeviation = calculateStandardDeviation();
 		System.out.println(System.currentTimeMillis() - start);
 	}
@@ -162,45 +163,47 @@ public class MultiStatistics {
 	private double calculateStandardDeviation() {
 		mean = totalScore / nGames;
 		double sumSqDiff = 0.0;
-		for(int i = 0 ; i < nGames ; i++) {
+		for (int i = 0; i < nGames; i++) {
 			double diff = results[i] - mean;
 			sumSqDiff += diff * diff;
 		}
 		return Math.sqrt(sumSqDiff / nGames);
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(  "100 games " + player.getClass().getSimpleName());
-		sb.append(  "\nMean:               " + mean);
+		sb.append("100 games " + player.getClass().getSimpleName());
+		sb.append("\nMean:               " + mean);
 		sb.append("\nStandard deviation: " + standardDeviation);
 		sb.append("\nHighest score:      " + highScore);
 		sb.append("\nHighest tile:       " + highTile);
 		sb.append("\nTile counts:        |");
-		sb.append("\nGrade: " + calculateGrade());
-		for(int t : highTiles) {
+
+		for (int t : highTiles) {
 			sb.append(t + "|");
 		}
+		sb.append("\nGrade: " + calculateGrade());
 		return sb.toString();
 	}
-	
+
 	private String calculateGrade() {
 		double grade = 0;
-		if (mean < 2000) {
+		int minScore = 2000;
+		int averageScore = 32000;
+		if (mean < minScore) {
+			return String.valueOf(grade);
+		} else if (mean < averageScore) {
+			grade = 40 + ((mean - minScore) / averageScore) * 30;
 			return String.valueOf(grade);
 		}
-		else if (mean < 22000) {
-			grade = (mean-2000)/286;
-			return String.valueOf(grade);
-		}
-		grade = ((mean-22000)/1200)+70;
+		grade = 70 + ((mean - averageScore) / mean) * 30;
 		return String.valueOf(grade);
 	}
 
-	public static void main (String[] args) {
-		for(Player p : Controller.getAvailableInstances(Player.class)) {
-//		for(Player p : new Player[]{new BaselinePlayer()}) {
+	public static void main(String[] args) {
+		for (Player p : Controller.getAvailableInstances(Player.class)) {
+			// for(Player p : new Player[]{new BaselinePlayer()}) {
 			System.out.println(p.getClass().getSimpleName());
 			MultiStatistics s = new MultiStatistics(100, p);
 			s.begin();

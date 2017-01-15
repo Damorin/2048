@@ -1,6 +1,4 @@
-/ai/
-/controller/
-/data/
-/eval/
 /model/
-/view/
+/data/
+/controller/
+/ai/

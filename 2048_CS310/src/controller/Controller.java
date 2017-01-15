@@ -15,22 +15,22 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import ai.Player;
+import eval.Evaluator;
 import model.AbstractState.MOVE;
 import model.BinaryState;
 import model.State;
 import view.ControlPanel;
 import view.FancyPanel;
-import ai.Player;
-import eval.Evaluator;
 
 public class Controller {
 
 	private static boolean running = false;
 
 	public static final List<Evaluator> evaluators = getAvailableInstances(Evaluator.class);
-	
+
 	private static final List<Player> players = getAvailableInstances(Player.class);
-	
+
 	private static final JButton playPause = new JButton("Play");
 	private static final JButton restart = new JButton("Restart");
 
@@ -42,11 +42,15 @@ public class Controller {
 		panel.setPreferredSize(new Dimension(600, 600));
 
 		final JFrame frame = new JFrame("Score: 0");
-		
+
 		frame.addKeyListener(new KeyListener() {
-			
-			public void keyTyped(KeyEvent e) {}
-			public void keyReleased(KeyEvent e) {}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyReleased(KeyEvent e) {
+			}
+
 			public void keyPressed(KeyEvent e) {
 				int code = e.getKeyCode() - 37;
 				if (code == 48) {
@@ -62,14 +66,21 @@ public class Controller {
 				frame.setTitle("Score: " + board.getScore());
 			}
 		});
-		
+
 		MouseListener bml = new MouseListener() {
 
-			public void mouseReleased(MouseEvent e) {}
-			public void mousePressed(MouseEvent e) {}
-			public void mouseExited(MouseEvent e) {}
-			public void mouseEntered(MouseEvent e) {}
-			
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			public void mousePressed(MouseEvent e) {
+			}
+
+			public void mouseExited(MouseEvent e) {
+			}
+
+			public void mouseEntered(MouseEvent e) {
+			}
+
 			public void mouseClicked(MouseEvent e) {
 				Object source = e.getSource();
 				if (source instanceof JButton) {
@@ -89,7 +100,7 @@ public class Controller {
 						for (Player p : players) {
 							p.reset();
 						}
-						if(playPause.getText().equals("Pause")) {
+						if (playPause.getText().equals("Pause")) {
 							playPause.setText("Play");
 						}
 						frame.repaint();
@@ -97,12 +108,12 @@ public class Controller {
 				}
 			}
 		};
-		
+
 		playPause.addMouseListener(bml);
 		restart.addMouseListener(bml);
-		
+
 		cPanel = new ControlPanel(players, playPause, restart);
-		
+
 		cPanel.setPreferredSize(new Dimension(250, 600));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new FlowLayout());
@@ -120,7 +131,8 @@ public class Controller {
 			while (!running) {
 				try {
 					Thread.sleep(100);
-				} catch (InterruptedException e1) {}
+				} catch (InterruptedException e1) {
+				}
 			}
 			while (!moves.isEmpty()) {
 				while (!running) {
@@ -131,11 +143,16 @@ public class Controller {
 						e1.printStackTrace();
 					}
 				}
+				System.out.println("Begin");
 				long start = System.currentTimeMillis();
 				MOVE move = cPanel.player.getMove(new BinaryState(board.toLong(), board.getScore()));
-				int time = (int) (System.currentTimeMillis()-start);
+				int time = (int) (System.currentTimeMillis() - start);
 				cPanel.updateTime(time);
-				board.move(move);
+				if (time >= 1000) {
+					board.timeTrialMove();
+				} else {
+					board.move(move);
+				}
 				board.updateTime(time);
 				moves = board.getMoves();
 				panel.repaint();
@@ -152,21 +169,21 @@ public class Controller {
 		String classpath = "";
 
 		File dir = new File(url.getFile());
-//		System.out.println(dir);
+		// System.out.println(dir);
 		String paths[] = (url.toString().split("/"));
-//		System.out.println(paths.length);
+		// System.out.println(paths.length);
 		for (int i = paths.length - 1; !paths[i].equals("bin"); i--) {
 			classpath = (paths[i]) + "." + classpath;
 		}
-//		System.out.println(classpath);
-//		System.out.println(dir.list().length);
+		// System.out.println(classpath);
+		// System.out.println(dir.list().length);
 		for (String file : dir.list()) {
-//			System.out.println(file);
+			// System.out.println(file);
 			Class<?> theClass;
 			try {
-				theClass = Class.forName(classpath
-						+ file.substring(0, file.length() - 6));
-//				System.out.println(classpath + file.substring(0, file.length() - 6));
+				theClass = Class.forName(classpath + file.substring(0, file.length() - 6));
+				// System.out.println(classpath + file.substring(0,
+				// file.length() - 6));
 				Constructor<?>[] cons = theClass.getConstructors();
 				if (cons.length > 0) {
 					Object obj = cons[0].newInstance();

@@ -20,7 +20,7 @@ public class FancyPanel extends JPanel {
 
 	public FancyPanel(State board) {
 		this.board = board;
-		setBackground(new Color(0xbbada0));
+		setBackground(new Color(0xff9933));
 		try {
 			GraphicsEnvironment ge = 
 					GraphicsEnvironment.getLocalGraphicsEnvironment();
