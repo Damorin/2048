@@ -11,12 +11,15 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import ai.Player;
 import eval.Evaluator;
+import jdk.management.resource.internal.inst.SocketOutputStreamRMHooks;
 import model.AbstractState.MOVE;
 import model.BinaryState;
 import model.State;
@@ -36,9 +39,13 @@ public class Controller {
 
 	private static ControlPanel cPanel;
 
+	private static ExecutorService executor = Executors.newFixedThreadPool(1);
+
 	public static void main(String[] args) {
+
 		final State board = new BinaryState();
 		final FancyPanel panel = new FancyPanel(board);
+		TimeTrialThread thread = new TimeTrialThread(board, panel);
 		panel.setPreferredSize(new Dimension(600, 600));
 
 		final JFrame frame = new JFrame("Score: 0");
@@ -126,6 +133,7 @@ public class Controller {
 		cPanel.setFrame(frame);
 		board.reset();
 		cPanel.reset();
+		executor.execute(thread);
 		while (true) {
 			List<MOVE> moves = board.getMoves();
 			while (!running) {
@@ -143,16 +151,13 @@ public class Controller {
 						e1.printStackTrace();
 					}
 				}
-				System.out.println("Begin");
+				thread.resume();
 				long start = System.currentTimeMillis();
 				MOVE move = cPanel.player.getMove(new BinaryState(board.toLong(), board.getScore()));
+				thread.pause();
 				int time = (int) (System.currentTimeMillis() - start);
 				cPanel.updateTime(time);
-				if (time >= 1000) {
-					board.timeTrialMove();
-				} else {
-					board.move(move);
-				}
+				board.move(move);
 				board.updateTime(time);
 				moves = board.getMoves();
 				panel.repaint();
@@ -196,5 +201,41 @@ public class Controller {
 		}
 
 		return items;
+	}
+}
+
+class TimeTrialThread implements Runnable {
+
+	private State s;
+	private FancyPanel panel;
+	private boolean running = true;
+
+	public TimeTrialThread(State s, FancyPanel panel) {
+		this.s = s;
+		this.panel = panel;
+	}
+
+	public void pause() {
+		running = false;
+	}
+
+	public void resume() {
+		running = true;
+	}
+
+	@Override
+	public void run() {
+		long start = System.currentTimeMillis();
+		long end = System.currentTimeMillis();
+		while (s.getMoves().size() > 0 && running) {
+			end = System.currentTimeMillis();
+			if (end - start >= 1000 && running == true) {
+				s.timeTrialMove();
+				panel.repaint();
+				start = System.currentTimeMillis();
+			}
+		}
+		System.out.println("Thread paused");
+
 	}
 }
