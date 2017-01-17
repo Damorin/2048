@@ -13,6 +13,7 @@ import ai.Player;
 import ai.RandomAI;
 import model.AbstractState.MOVE;
 import model.BinaryState;
+import model.TimeTrialThread;
 
 public class Statistics {
 	private final int nGames;
@@ -25,6 +26,8 @@ public class Statistics {
 	private final BinaryState game = new BinaryState();
 	private double mean;
 	private double standardDeviation;
+
+	private static ExecutorService executor = Executors.newFixedThreadPool(1);
 
 	public Statistics(int nGames, Player player) {
 		this.nGames = nGames;
@@ -48,10 +51,13 @@ public class Statistics {
 		@Override
 		public Point call() throws Exception {
 			BinaryState game = new BinaryState();
+			TimeTrialThread thread = new TimeTrialThread(game);
 			List<MOVE> moves = game.getMoves();
-
+			executor.execute(thread);
 			while (!moves.isEmpty()) {
+				thread.resume();
 				MOVE move = player.getMove(game);
+				thread.pause();
 				game.move(move);
 
 				moves = game.getMoves();
