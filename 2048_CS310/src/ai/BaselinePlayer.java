@@ -2,12 +2,10 @@ package ai;
 
 import java.util.List;
 
-import model.AbstractState.MOVE;
-import model.State;
 import eval.BonusEvaluator;
 import eval.Evaluator;
-import eval.FastEvaluator;
-import eval.ScoreEvaluator;
+import model.AbstractState.MOVE;
+import model.State;
 
 public class BaselinePlayer extends AbstractPlayer {
 	

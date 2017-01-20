@@ -1,5 +1,10 @@
 package model;
 
+import static model.AbstractState.MOVE.DOWN;
+import static model.AbstractState.MOVE.LEFT;
+import static model.AbstractState.MOVE.RIGHT;
+import static model.AbstractState.MOVE.UP;
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +14,6 @@ import java.util.Map;
 import java.util.Random;
 
 import model.AbstractState.MOVE;
-import static model.AbstractState.MOVE.*;
 public class LongInfo {
 	
 	

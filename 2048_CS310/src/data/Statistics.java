@@ -27,7 +27,8 @@ public class Statistics {
 	private double mean;
 	private double standardDeviation;
 
-	private static ExecutorService executor = Executors.newFixedThreadPool(1);
+	// private static ExecutorService executor =
+	// Executors.newFixedThreadPool(1);
 
 	public Statistics(int nGames, Player player) {
 		this.nGames = nGames;
@@ -51,14 +52,21 @@ public class Statistics {
 		@Override
 		public Point call() throws Exception {
 			BinaryState game = new BinaryState();
-			TimeTrialThread thread = new TimeTrialThread(game);
+			// TimeTrialThread thread = new TimeTrialThread(game);
 			List<MOVE> moves = game.getMoves();
-			executor.execute(thread);
+			// executor.execute(thread);
 			while (!moves.isEmpty()) {
-				thread.resume();
+				// thread.resume();
+				long start = System.currentTimeMillis();
 				MOVE move = player.getMove(game);
-				thread.pause();
-				game.move(move);
+				if (System.currentTimeMillis() - start >= 1000) {
+					// thread.pause();
+					game.timeTrialMove();
+				}
+				else {
+					game.move(move);
+					
+				}
 
 				moves = game.getMoves();
 

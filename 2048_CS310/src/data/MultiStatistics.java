@@ -75,19 +75,23 @@ public class MultiStatistics {
 			while (!moves.isEmpty()) {
 				long t1 = System.currentTimeMillis();
 				MOVE move = player.getMove(game.copy());
-
-				if (moves.contains(move)) {
-					game.updateTime((int) (System.currentTimeMillis() - t1));
-					game.move(move);
-					moves = game.getMoves();
-					badCount = 0;
-					frame.setTitle("Score: " + game.getScore());
-					panel.repaint();
+				if (System.currentTimeMillis() - t1 >= 1000) {
+					game.timeTrialMove();
 				} else {
-					badCount++;
-					// System.err.println(badCount);
-					if (badCount == 10) {
-						return new Triple2048(game.getScore(), game.getHighestTileValue(), game.getAvgTime());
+
+					if (moves.contains(move)) {
+						game.updateTime((int) (System.currentTimeMillis() - t1));
+						game.move(move);
+						moves = game.getMoves();
+						badCount = 0;
+						frame.setTitle("Score: " + game.getScore());
+						panel.repaint();
+					} else {
+						badCount++;
+						// System.err.println(badCount);
+						if (badCount == 10) {
+							return new Triple2048(game.getScore(), game.getHighestTileValue(), game.getAvgTime());
+						}
 					}
 				}
 			}

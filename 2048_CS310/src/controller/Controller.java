@@ -11,8 +11,6 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,7 +20,6 @@ import eval.Evaluator;
 import model.AbstractState.MOVE;
 import model.BinaryState;
 import model.State;
-import model.TimeTrialThread;
 import view.ControlPanel;
 import view.FancyPanel;
 
@@ -39,13 +36,14 @@ public class Controller {
 
 	private static ControlPanel cPanel;
 
-	private static ExecutorService executor = Executors.newFixedThreadPool(1);
+	// private static ExecutorService executor =
+	// Executors.newFixedThreadPool(1);
 
 	public static void main(String[] args) {
 
 		final State board = new BinaryState();
 		final FancyPanel panel = new FancyPanel(board);
-		TimeTrialThread thread = new TimeTrialThread(board, panel);
+		// TimeTrialThread thread = new TimeTrialThread(board, panel);
 		panel.setPreferredSize(new Dimension(600, 600));
 
 		final JFrame frame = new JFrame("Score: 0");
@@ -133,7 +131,7 @@ public class Controller {
 		cPanel.setFrame(frame);
 		board.reset();
 		cPanel.reset();
-		executor.execute(thread);
+		// executor.execute(thread);
 		while (true) {
 			List<MOVE> moves = board.getMoves();
 			while (!running) {
@@ -151,13 +149,17 @@ public class Controller {
 						e1.printStackTrace();
 					}
 				}
-				thread.resume();
+				// thread.resume();
 				long start = System.currentTimeMillis();
 				MOVE move = cPanel.player.getMove(new BinaryState(board.toLong(), board.getScore()));
-				thread.pause();
+				// thread.pause();
 				int time = (int) (System.currentTimeMillis() - start);
 				cPanel.updateTime(time);
-				board.move(move);
+				if (time >= 1000) {
+					board.timeTrialMove();
+				} else {
+					board.move(move);
+				}
 				board.updateTime(time);
 				moves = board.getMoves();
 				panel.repaint();
